@@ -267,14 +267,12 @@ input.onchange = async () => {
 
         status.innerText = "🔍 Preprocessing image...";
         
-        // Обробка зображення
         let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         imageData = preprocessImage(imageData);
         ctx.putImageData(imageData, 0, 0);
 
         status.innerText = "📍 Detecting sudoku grid...";
         
-        // Пошук меж судоку
         const bounds = detectSudokuBounds(canvas);
         
         if (bounds.maxX - bounds.minX < 50 || bounds.maxY - bounds.minY < 50) {
@@ -284,7 +282,6 @@ input.onchange = async () => {
 
         status.innerText = "🧮 Recognizing digits...";
         
-        // Вилучення цифр з клітинок
         const cellDigits = extractCellDigits(canvas, bounds);
         
         const board = Array(9).fill(null).map(() => Array(9).fill(0));
@@ -303,25 +300,15 @@ input.onchange = async () => {
         console.log("Board:", board);
 
         if (recognizedCount < 17) {
-            status.innerText = `❌ Recognized only ${recognizedCount} digits. Need at least 17.`;
-            return;
+            status.innerText = `⚠️ Recognized only ${recognizedCount} digits. You can edit manually.`;
+        } else {
+            status.innerText = `✅ Recognized ${recognizedCount} digits!`;
         }
 
-        status.innerText = "⚡ Solving...";
-
-        let solved = solveSudoku(JSON.parse(JSON.stringify(board)));
+        // Завантажуємо судоку в гріль
+        loadBoardFromOCR(board);
         
-        if (!solved || solved.every(r => r.every(c => c === 0))) {
-            status.innerText = "❌ Could not solve sudoku. Board might be invalid.";
-            resultBox.innerText = "Original board:\n\n" + board.map(r => r.join(" ")).join("\n");
-            return;
-        }
-
-        resultBox.innerText =
-            `Recognized: ${recognizedCount} digits\n\n` +
-            "Solved Sudoku:\n\n" +
-            solved.map(r => r.join(" ")).join("\n");
-
-        status.innerText = "✅ Done!";
+        document.getElementById("result").innerText = 
+            `OCR Result (${recognizedCount} digits):\n\n${board.map(r => r.join(" ")).join("\n")}`;
     };
 };

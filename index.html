@@ -8,17 +8,39 @@
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
 </head>
 <body>
-    <h1>Sudoku OCR Solver</h1>
+    <div class="container">
+        <h1>🧩 Sudoku OCR Solver</h1>
 
-    <input type="file" accept="image/*" id="imgInput">
+        <div class="content">
+            <div class="left-panel">
+                <div class="upload-section">
+                    <label for="imgInput" class="file-input-label">📷 Upload Image</label>
+                    <input type="file" accept="image/*" id="imgInput">
+                    <p id="status" class="status"></p>
+                </div>
 
-    <p id="status"></p>
+                <canvas id="preview" class="preview"></canvas>
+            </div>
 
-    <canvas id="preview"></canvas>
+            <div class="right-panel">
+                <div class="grid-section">
+                    <h2>Sudoku Grid</h2>
+                    <div id="sudokuGrid" class="sudoku-grid"></div>
+                </div>
 
-    <pre id="result"></pre>
+                <div class="button-group">
+                    <button id="solveBtn" class="btn btn-primary">⚡ Solve</button>
+                    <button id="clearBtn" class="btn btn-secondary">🗑️ Clear</button>
+                    <button id="resetBtn" class="btn btn-secondary">🔄 Reset</button>
+                </div>
+
+                <pre id="result" class="result"></pre>
+            </div>
+        </div>
+    </div>
 
     <script src="solver.js"></script>
     <script src="ocr.js"></script>
+    <script src="ui.js"></script>
 </body>
 </html>
