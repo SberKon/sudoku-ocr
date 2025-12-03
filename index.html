@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku OCR Solver</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
+</head>
+<body>
+    <h1>Sudoku OCR Solver</h1>
+
+    <input type="file" accept="image/*" id="imgInput">
+
+    <p id="status"></p>
+
+    <canvas id="preview"></canvas>
+
+    <pre id="result"></pre>
+
+    <script src="solver.js"></script>
+    <script src="ocr.js"></script>
+</body>
+</html>
