@@ -51,6 +51,59 @@ function enhanceCell(cellCanvas) {
     return cellCanvas;
 }
 
+function invertCell(cellCanvas) {
+    const cellCtx = cellCanvas.getContext("2d");
+    const cellData = cellCtx.getImageData(0, 0, cellCanvas.width, cellCanvas.height);
+    const data = cellData.data;
+    
+    // Інвертування чорного на білий для розпізнавання
+    for (let i = 0; i < data.length; i += 4) {
+        data[i] = 255 - data[i];
+        data[i + 1] = 255 - data[i + 1];
+        data[i + 2] = 255 - data[i + 2];
+    }
+    
+    cellCtx.putImageData(cellData, 0, 0);
+    return cellCanvas;
+}
+
+function dilateCell(cellCanvas) {
+    const cellCtx = cellCanvas.getContext("2d");
+    const cellData = cellCtx.getImageData(0, 0, cellCanvas.width, cellCanvas.height);
+    const data = cellData.data;
+    const w = cellCanvas.width;
+    const h = cellCanvas.height;
+    
+    const kernel = 2; // Радіус розширення
+    const newData = new Uint8ClampedArray(data);
+    
+    for (let i = 0; i < data.length; i += 4) {
+        const pixelIndex = i / 4;
+        const x = pixelIndex % w;
+        const y = Math.floor(pixelIndex / w);
+        
+        // Якщо це чорний піксель, розширюємо його
+        if (data[i] < 128) {
+            for (let dx = -kernel; dx <= kernel; dx++) {
+                for (let dy = -kernel; dy <= kernel; dy++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    
+                    if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
+                        const ni = (ny * w + nx) * 4;
+                        newData[ni] = 0;
+                        newData[ni + 1] = 0;
+                        newData[ni + 2] = 0;
+                    }
+                }
+            }
+        }
+    }
+    
+    cellCtx.putImageData(new ImageData(newData, w, h), 0, 0);
+    return cellCanvas;
+}
+
 function detectSudokuBounds(canvas) {
     const ctx = canvas.getContext("2d");
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -113,6 +166,9 @@ function extractCellDigits(canvas, bounds) {
 }
 
 async function recognizeDigit(cellCanvas) {
+    const attempts = [];
+    
+    // Спроба 1: оригінальне зображення
     try {
         const { data: { text, confidence } } = await Tesseract.recognize(
             cellCanvas,
@@ -124,15 +180,75 @@ async function recognizeDigit(cellCanvas) {
         );
 
         const digit = parseInt(text.trim());
-        
         if (digit >= 1 && digit <= 9) {
-            return { digit, confidence };
+            attempts.push({ digit, confidence, source: "original" });
         }
     } catch (e) {
-        console.log("Recognition error:", e);
+        console.log("Original recognition error:", e);
     }
     
-    return { digit: 0, confidence: 0 };
+    // Спроба 2: інвертоване зображення (для білих цифр)
+    const inverted = document.createElement("canvas");
+    inverted.width = cellCanvas.width;
+    inverted.height = cellCanvas.height;
+    const invCtx = inverted.getContext("2d");
+    invCtx.drawImage(cellCanvas, 0, 0);
+    invertCell(inverted);
+    
+    try {
+        const { data: { text, confidence } } = await Tesseract.recognize(
+            inverted,
+            "eng",
+            {
+                tessedit_char_whitelist: "123456789",
+                tessedit_pageseg_mode: Tesseract.PSM.SINGLE_CHAR
+            }
+        );
+
+        const digit = parseInt(text.trim());
+        if (digit >= 1 && digit <= 9) {
+            attempts.push({ digit, confidence, source: "inverted" });
+        }
+    } catch (e) {
+        console.log("Inverted recognition error:", e);
+    }
+    
+    // Спроба 3: розширене зображення (для частково видимих)
+    const dilated = document.createElement("canvas");
+    dilated.width = cellCanvas.width;
+    dilated.height = cellCanvas.height;
+    const dilCtx = dilated.getContext("2d");
+    dilCtx.drawImage(cellCanvas, 0, 0);
+    dilateCell(dilated);
+    
+    try {
+        const { data: { text, confidence } } = await Tesseract.recognize(
+            dilated,
+            "eng",
+            {
+                tessedit_char_whitelist: "123456789",
+                tessedit_pageseg_mode: Tesseract.PSM.SINGLE_CHAR
+            }
+        );
+
+        const digit = parseInt(text.trim());
+        if (digit >= 1 && digit <= 9) {
+            attempts.push({ digit, confidence, source: "dilated" });
+        }
+    } catch (e) {
+        console.log("Dilated recognition error:", e);
+    }
+    
+    if (attempts.length === 0) {
+        return { digit: 0, confidence: 0, source: "none" };
+    }
+    
+    // Вибираємо результат з найвищою впевненістю
+    const best = attempts.reduce((prev, current) => 
+        current.confidence > prev.confidence ? current : prev
+    );
+    
+    return best;
 }
 
 input.onchange = async () => {
@@ -180,7 +296,7 @@ input.onchange = async () => {
             if (result.digit >= 1 && result.digit <= 9) {
                 board[cell.row][cell.col] = result.digit;
                 recognizedCount++;
-                console.log(`[${cell.row},${cell.col}] = ${result.digit} (conf: ${(result.confidence * 100).toFixed(1)}%)`);
+                console.log(`[${cell.row},${cell.col}] = ${result.digit} (conf: ${(result.confidence * 100).toFixed(1)}%, source: ${result.source})`);
             }
         }
 
