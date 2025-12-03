@@ -102,13 +102,13 @@ function solveBoard() {
     solvedBoard = solveSudoku(boardCopy);
 
     if (!solvedBoard || solvedBoard.every(r => r.every(c => c === 0))) {
-        showStatus("❌ Could not solve sudoku. Board might be invalid.", "error");
-        displayResult("Invalid Sudoku", currentBoard);
+        showStatus("❌ Invalid Sudoku", "error");
+        displayResult("Invalid", currentBoard);
         return;
     }
 
-    displayResult("Solution Found", solvedBoard);
-    showStatus("✅ Sudoku solved!", "success");
+    displayResult("Solution", solvedBoard);
+    showStatus("✅ Solved!", "success");
     
     // Показуємо рішення в гриді
     for (let row = 0; row < 9; row++) {
@@ -124,7 +124,7 @@ function solveBoard() {
 
 function displayResult(title, board) {
     const resultBox = document.getElementById("result");
-    resultBox.innerText = `${title}:\n\n${board.map(r => r.join(" ")).join("\n")}`;
+    resultBox.innerText = `${title}:\n${board.map(r => r.join(" ")).join("\n")}`;
 }
 
 function showStatus(message, type) {

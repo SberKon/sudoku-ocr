@@ -6,6 +6,7 @@
 }
 
 html, body {
+    width: 100%;
     height: 100%;
     overflow-x: hidden;
 }
@@ -14,7 +15,7 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
-    padding: 10px;
+    padding: 8px;
 }
 
 .container {
@@ -27,23 +28,26 @@ body {
     display: flex;
     flex-direction: column;
     height: 100%;
+    max-height: 100vh;
 }
 
 h1 {
     text-align: center;
-    padding: 20px 15px;
+    padding: 12px 10px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    font-size: 1.8em;
+    font-size: 1.4em;
+    flex-shrink: 0;
 }
 
 .content {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    padding: 20px;
+    gap: 15px;
+    padding: 15px;
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* Upload Section */
@@ -259,41 +263,6 @@ h1 {
 /* Tablet */
 @media (max-width: 1024px) {
     h1 {
-        font-size: 1.6em;
-        padding: 15px 10px;
-    }
-
-    .content {
-        grid-template-columns: 1fr;
-        gap: 15px;
-        padding: 15px;
-    }
-
-    .preview {
-        max-height: 250px;
-    }
-
-    .sudoku-grid {
-        margin-bottom: 12px;
-    }
-
-    .result {
-        min-height: 120px;
-        font-size: 11px;
-    }
-}
-
-/* Mobile */
-@media (max-width: 600px) {
-    body {
-        padding: 5px;
-    }
-
-    .container {
-        border-radius: 12px;
-    }
-
-    h1 {
         font-size: 1.4em;
         padding: 12px 10px;
     }
@@ -304,16 +273,57 @@ h1 {
         padding: 12px;
     }
 
+    .preview {
+        max-height: 250px;
+    }
+
+    .sudoku-grid {
+        margin-bottom: 10px;
+    }
+
+    .result {
+        min-height: 100px;
+        font-size: 11px;
+        max-height: 200px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    body {
+        padding: 4px;
+    }
+
+    .container {
+        border-radius: 8px;
+        max-height: 100vh;
+    }
+
+    h1 {
+        font-size: 1.2em;
+        padding: 10px 8px;
+    }
+
+    .content {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 8px;
+        overflow-y: auto;
+    }
+
     .left-panel {
         order: 2;
     }
 
     .right-panel {
         order: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
     }
 
     .upload-section {
-        margin-bottom: 10px;
+        margin-bottom: 8px;
     }
 
     .file-input-label {
@@ -323,28 +333,34 @@ h1 {
 
     .status {
         font-size: 12px;
-        margin: 6px 0;
-        padding: 6px;
+        margin: 4px 0;
+        padding: 4px;
     }
 
     .preview {
-        max-height: 200px;
+        max-height: 150px;
         display: none;
+        margin-top: 6px;
     }
 
     .preview.show {
         display: block;
     }
 
+    .grid-section {
+        flex-shrink: 0;
+    }
+
     .grid-section h2 {
-        font-size: 16px;
-        margin-bottom: 10px;
+        font-size: 14px;
+        margin-bottom: 8px;
     }
 
     .sudoku-grid {
         padding: 1px;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         border: 2px solid #333;
+        max-width: 100%;
     }
 
     .sudoku-cell {
@@ -352,55 +368,81 @@ h1 {
     }
 
     .sudoku-cell input {
-        font-size: clamp(10px, 4vw, 16px);
+        font-size: clamp(10px, 3.5vw, 14px);
     }
 
     .button-group {
         grid-template-columns: 1fr 1fr 1fr;
-        gap: 6px;
-        margin-bottom: 10px;
+        gap: 5px;
+        margin-bottom: 8px;
+        flex-shrink: 0;
     }
 
     .btn {
-        padding: 10px 6px;
+        padding: 10px 4px;
         font-size: 12px;
         min-height: 40px;
+        border-radius: 6px;
     }
 
     .result {
-        padding: 10px;
+        padding: 8px;
         font-size: 11px;
-        min-height: 100px;
-        max-height: 250px;
-        line-height: 1.4;
+        min-height: 80px;
+        max-height: 200px;
+        line-height: 1.3;
+        flex-shrink: 0;
+        overflow-y: auto;
     }
 }
 
 /* Extra Small */
 @media (max-width: 380px) {
     h1 {
-        font-size: 1.2em;
-        padding: 10px 8px;
+        font-size: 1.1em;
+        padding: 8px 6px;
     }
 
     .content {
-        gap: 10px;
-        padding: 10px;
+        gap: 6px;
+        padding: 6px;
+    }
+
+    .file-input-label {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+
+    .grid-section h2 {
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .sudoku-grid {
+        padding: 1px;
+        margin-bottom: 6px;
+    }
+
+    .sudoku-cell input {
+        font-size: 11px;
+    }
+
+    .button-group {
+        gap: 4px;
+        margin-bottom: 6px;
     }
 
     .btn {
-        padding: 8px 4px;
+        padding: 8px 2px;
         font-size: 11px;
         min-height: 36px;
     }
 
-    .sudoku-cell input {
-        font-size: 12px;
-    }
-
     .result {
+        padding: 6px;
         font-size: 10px;
-        padding: 8px;
+        min-height: 70px;
+        max-height: 150px;
     }
 }
 
@@ -412,4 +454,9 @@ h1 {
 /* Запобігання збільшенню шрифту на фокусі */
 input {
     font-size: 16px !important;
+}
+
+/* Запобігання zoom на iPhone при double-tap */
+button, input, label {
+    touch-action: manipulation;
 }
